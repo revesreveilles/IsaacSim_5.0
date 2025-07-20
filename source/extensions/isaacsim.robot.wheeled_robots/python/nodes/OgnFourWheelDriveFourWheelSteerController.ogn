@@ -1,0 +1,93 @@
+{
+    "FourWheelDriveFourWheelSteerController": {
+        "version": 1,
+        "description": "Four Wheel Drive Four Wheel Steering Controller",
+        "language": "Python",
+        "categories": {
+            "isaacWheeledRobots": "4WD4WS controller for wheeledRobots in Isaac Sim"
+        },
+        "metadata": {
+            "uiName": "Four Wheel Drive Four Wheel Steer Controller"
+        },
+        "$comment": "",
+        "inputs": {
+            "execIn": {
+                "type": "execution",
+                "description": "The input execution"
+            },
+            "chassisLinearVel": {
+                "type": "vectord[3]",
+                "description": "Chassis' linear velocity [x, y, z]",
+                "default": [0.0, 0.0, 0.0]
+            },
+            "chassisAngularVel": {
+                "type": "vectord[3]",
+                "description": "Chassis' angular velocity [x, y, z]",
+                "default": [0.0, 0.0, 0.0]
+            },
+            "yaw": {
+                "type": "double",
+                "description": "Current robot yaw angle in radians",
+                "default": 0.0
+            },
+            "wheelBase": {
+                "type": "double",
+                "description": "Distance between the front and rear axles of the robot in meters",
+                "default": 0.0
+            },
+            "trackWidth": {
+                "type": "double",
+                "description": "Distance between the left and right wheels of the robot in meters",
+                "default": 0.0
+            },
+            "wheelRadii": {
+                "type": "double[]",
+                "description": "an array of wheel radius",
+                "default": [0.1, 0.1, 0.1, 0.1]
+            },
+            "wheelPositions": {
+                "type": "vectord[3][]",
+                "description": "Position of the wheel with respect to chassis' center of mass, [x, y, z]",
+                "default": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+            },
+            "maxWheelVelocity": {
+                "type": "double",
+                "description": "Maximum magnitude of angular velocity of the robot wheel in rad/s. Parameter is ignored if set to 0.0",
+                "default": 0.0
+            },
+            "maxSteeringAngle": {
+                "type": "double",
+                "description": "Maximum magnitude of steering angle for each wheel in radians. Parameter is ignored if set to 0.0",
+                "default": 1.5708
+            },
+            "maxAcceleration": {
+                "type": "double",
+                "description": "Maximum magnitude of acceleration for the robot in m/s^2. Parameter is ignored if set to 0.0",
+                "default": 0.0
+            },
+            "maxSteeringVelocity": {
+                "type": "double",
+                "description": "Maximum magnitude of steering angle velocity in rad/s. Parameter is ignored if set to 0.0",
+                "default": 0.0
+            },
+            "dt": {
+                "type": "double",
+                "description": "Delta time for the simulation step"
+            }
+        },
+        "outputs": {
+            "execOut": {
+                "type": "execution",
+                "description": "The output execution"
+            },
+            "wheelVelocities": {
+                "type": "double[]",
+                "description": "Angular velocities for the four wheels in rad/s. In specific order: front left wheel, front right wheel, back left wheel, back right wheel"
+            },
+            "steeringAngles": {
+                "type": "double[]",
+                "description": "Steering angles for the four wheels in radians. In specific order: front left steering, front right steering, back left steering, back right steering"
+            }
+        }
+    }
+}

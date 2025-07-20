@@ -42,9 +42,21 @@
   <dependency name="physx" linkPath="../_build/target-deps/physx" />
   <dependency name="usd_ext_physics_${config}" linkPath="../_build/target-deps/usd_ext_physics/${config}" />
   <dependency name="gsl" linkPath="../_build/target-deps/gsl" />
+  
+  <dependency name="system_ros" linkPath="../_build/target-deps/system_ros" tags="${config}">
+      <source path="/opt/ros/humble"/>
+  </dependency>
 
   <!-- The doctest package imported from kit-kernel is not yet available. -->
   <dependency name="doctest" linkPath="../_build/target-deps/doctest">
     <package name="doctest" version="2.4.5+nv1-3" />
   </dependency>
+
+  <dependency name="mm_msgs" linkPath="../_build/target-deps/mm_msgs" tags="${config}">
+      <source path="/home/revesreveilles/isaac_ws/install/mm_msgs" />
+  </dependency>
+  <import path="../_build/${platform_target}/${config}/kit/dev/deps/linbuild.packman.xml">
+    <filter include="linbuild" linkPath="../_build/host-deps/linbuild" tags="non-redist" />
+  </import>
+
 </project>
