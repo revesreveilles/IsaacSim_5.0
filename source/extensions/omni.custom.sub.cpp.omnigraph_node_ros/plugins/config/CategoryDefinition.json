@@ -1,0 +1,8 @@
+{
+    "categoryDefinitions": {
+        "$description": "These categories are applied to nodes in the Custom ROS2 Extension",
+        "CustomRos2 Msgs": "Custom Nodes that implementing functionality for Custom ROS2 Interoperability",
+        "CustomRos2 Msgs:subscriber": "Custom Nodes that subscribe to a CustomRos2 message",
+        "CustomRos2 Msgs:publisher": "Custom Nodes that publish to a CustomRos2 message"
+    }
+}
