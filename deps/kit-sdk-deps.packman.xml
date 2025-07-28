@@ -53,4 +53,10 @@
   <import path="../_build/${platform_target}/${config}/kit/dev/deps/linbuild.packman.xml">
     <filter include="linbuild" linkPath="../_build/host-deps/linbuild" tags="non-redist" />
   </import>
+
+  <!-- The doctest package imported from kit-kernel is not yet available. -->
+  <dependency name="doctest" linkPath="../_build/target-deps/doctest">
+    <package name="doctest" version="2.4.5+nv1-3" />
+  </dependency>
+
 </project>
