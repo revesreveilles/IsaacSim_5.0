@@ -2,8 +2,8 @@
 version = "1.0.3" # Semantic Versioning is used: https://semver.org/
 
 # These fields are used primarily for display in the extension browser UI.
-title = "Custom ROS2 OGN Example Extension"
-description = "Demonstrates how to create a ROS2 C++ node for OmniGraph"
+title = "Custom ROS2 Msgs OGN Extension"
+description = "Create a ROS2 C++ node for Custom Msgs as OmniGraph"
 category = "Custom"
 keywords = ["custom", "C++", "cpp", "Graph", "Node", "OmniGraph"]
 icon = "data/icon.png"
@@ -17,7 +17,7 @@ readme  = "docs/README.md"
 "omni.graph.tools" = {}
 
 [[python.module]]
-name = "omni.custom.sub.cpp.omnigraph_node_ros"
+name = "omni.custom.cpp.ogn_ros"
 
 [[native.plugin]]
 path = "bin/*.plugin"

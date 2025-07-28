@@ -5,7 +5,7 @@ project_ext(ext)
 
 -- --------------------------------------------------------------------------------------------------------------
 -- Helper variable containing standard configuration information for projects containing OGN files.
-local ogn = get_ogn_project_information(ext, "omni/custom/sub/cpp/omnigraph_node_ros")
+local ogn = get_ogn_project_information(ext, "omni/custom/cpp/ogn_ros")
 
 
 -- --------------------------------------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ repo_build.prebuild_link {
 -- In a mixed extension this would be part of a separate Python-based project but since here it is just the one
 -- file it can be copied directly with no build dependencies.
 repo_build.prebuild_copy {
-    { "omni/custom/sub/cpp/omnigraph_node_ros/__init__.py", ogn.python_target_path }
+    { "omni/custom/cpp/ogn_ros/__init__.py", ogn.python_target_path }
 }
 
 
@@ -32,9 +32,9 @@ project_ext_ogn( ext, ogn )
 
 -- --------------------------------------------------------------------------------------------------------------
 -- Build the C++ plugin that will be loaded by the extension.
-project_ext_plugin(ext, "omni.custom.sub.cpp.omnigraph_node_ros.plugin")
+project_ext_plugin(ext, "omni.custom.cpp.ogn_ros.plugin")
     -- It is important that you add all subdirectories containing C++ code to this project
-    add_files("source", "plugins/omni.custom.sub.cpp.omnigraph_node_ros")
+    add_files("source", "plugins/omni.custom.cpp.ogn_ros")
     add_files("nodes", "plugins/nodes")
 
     -- Add the standard dependencies all OGN projects have; includes, libraries to link, and required compiler flags

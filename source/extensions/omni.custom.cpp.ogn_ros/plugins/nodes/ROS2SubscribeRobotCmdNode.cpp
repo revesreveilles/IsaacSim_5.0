@@ -9,6 +9,7 @@
 #include <ROS2SubscribeRobotCmdNodeDatabase.h>
 #include <string>
 #include <memory>
+#include <algorithm>
 
 // Include the mm_msgs RobotCmd message
 #include "mm_msgs/msg/robot_cmd.h"
@@ -23,13 +24,19 @@ using omni::graph::core::Type;
 using omni::graph::core::BaseDataType;
 
 namespace omni {
-namespace example {
+namespace custom {
 namespace cpp {
-namespace omnigraph_node_ros {
+namespace ogn_ros {
 
 class ROS2SubscribeRobotCmdNode
 {
 public:
+    static void initInstance(NodeObj const& nodeObj, GraphInstanceID instanceId)
+    {
+        auto& state = ROS2SubscribeRobotCmdNodeDatabase::sPerInstanceState<ROS2SubscribeRobotCmdNode>(nodeObj, instanceId);
+        state.m_nodeObj = nodeObj;
+    }
+
     static bool compute(ROS2SubscribeRobotCmdNodeDatabase& db)
     {
         auto& state = db.internalState<ROS2SubscribeRobotCmdNode>();
@@ -210,11 +217,154 @@ public:
             // Trigger execution output to indicate new data is available
             db.outputs.execOut() = 1;
 
-            // printf("Outputs set: yaw=%.2f, linear_vel=[%.2f,%.2f,%.2f], angular_vel=[%.2f,%.2f,%.2f], gripper=%.2f\n",
-            //        static_cast<double>(ros_msg->yaw),
-            //        chassisLinearVel[0], chassisLinearVel[1], chassisLinearVel[2],
-            //        chassisAngularVel[0], chassisAngularVel[1], chassisAngularVel[2],
-            //        static_cast<double>(ros_msg->gripper_cmd));
+            // Process arm trajectory command
+            if (ros_msg->arm_cmd.points.size > 0)
+            {
+                // Get the latest trajectory point (last point in the trajectory)
+                size_t latest_point_index = ros_msg->arm_cmd.points.size - 1;
+                auto& latest_point = ros_msg->arm_cmd.points.data[latest_point_index];
+                
+                // Determine number of joints from either joint_names or position data
+                size_t num_joints = 0;
+                if (ros_msg->arm_cmd.joint_names.size > 0) {
+                    num_joints = ros_msg->arm_cmd.joint_names.size;
+                } else if (latest_point.positions.size > 0) {
+                    num_joints = latest_point.positions.size;
+                } else if (latest_point.velocities.size > 0) {
+                    num_joints = latest_point.velocities.size;
+                } else if (latest_point.effort.size > 0) {
+                    num_joints = latest_point.effort.size;
+                }
+
+                if (num_joints > 0) {
+                    // Resize output arrays to match number of joints
+                    db.outputs.armJointNames().resize(num_joints);
+                    db.outputs.armPositionCmd().resize(num_joints);
+                    db.outputs.armVelocityCmd().resize(num_joints);
+                    db.outputs.armEffortCmd().resize(num_joints);
+
+                    // Extract joint names (if available) - get references and assign directly
+                    auto& armJointNames = db.outputs.armJointNames();
+                    if (ros_msg->arm_cmd.joint_names.size > 0) {
+                        size_t name_count = std::min(ros_msg->arm_cmd.joint_names.size, num_joints);
+                        for (size_t i = 0; i < name_count; i++)
+                        {
+                            std::string joint_name(ros_msg->arm_cmd.joint_names.data[i].data);
+                            armJointNames[i] = db.stringToToken(joint_name.c_str());
+                        }
+                        // Fill remaining with default names if joint_names is smaller
+                        for (size_t i = name_count; i < num_joints; i++)
+                        {
+                            std::string default_name = "joint_" + std::to_string(i);
+                            armJointNames[i] = db.stringToToken(default_name.c_str());
+                        }
+                    } else {
+                        // No joint names provided, create default names
+                        for (size_t i = 0; i < num_joints; i++)
+                        {
+                            std::string default_name = "joint_" + std::to_string(i);
+                            armJointNames[i] = db.stringToToken(default_name.c_str());
+                        }
+                    }
+
+                    // Extract position commands - get reference and assign directly
+                    auto& armPositionCmd = db.outputs.armPositionCmd();
+                    if (latest_point.positions.size > 0)
+                    {
+                        size_t pos_size = std::min(static_cast<size_t>(latest_point.positions.size), num_joints);
+                        for (size_t i = 0; i < pos_size; i++)
+                        {
+                            armPositionCmd[i] = static_cast<double>(latest_point.positions.data[i]);
+                        }
+                        // Fill remaining with zeros if positions array is smaller than joint count
+                        for (size_t i = pos_size; i < num_joints; i++)
+                        {
+                            armPositionCmd[i] = 0.0;
+                        }
+                    }
+                    else
+                    {
+                        // No position data, fill with zeros
+                        for (size_t i = 0; i < num_joints; i++)
+                        {
+                            armPositionCmd[i] = 0.0;
+                        }
+                    }
+
+                    // Extract velocity commands - get reference and assign directly
+                    auto& armVelocityCmd = db.outputs.armVelocityCmd();
+                    if (latest_point.velocities.size > 0)
+                    {
+                        size_t vel_size = std::min(static_cast<size_t>(latest_point.velocities.size), num_joints);
+                        for (size_t i = 0; i < vel_size; i++)
+                        {
+                            armVelocityCmd[i] = static_cast<double>(latest_point.velocities.data[i]);
+                        }
+                        // Fill remaining with zeros if velocities array is smaller than joint count
+                        for (size_t i = vel_size; i < num_joints; i++)
+                        {
+                            armVelocityCmd[i] = 0.0;
+                        }
+                    }
+                    else
+                    {
+                        // No velocity data, fill with zeros
+                        for (size_t i = 0; i < num_joints; i++)
+                        {
+                            armVelocityCmd[i] = 0.0;
+                        }
+                    }
+
+                    // Extract effort commands - get reference and assign directly
+                    auto& armEffortCmd = db.outputs.armEffortCmd();
+                    if (latest_point.effort.size > 0)
+                    {
+                        size_t eff_size = std::min(static_cast<size_t>(latest_point.effort.size), num_joints);
+                        for (size_t i = 0; i < eff_size; i++)
+                        {
+                            armEffortCmd[i] = static_cast<double>(latest_point.effort.data[i]);
+                        }
+                        // Fill remaining with zeros if effort array is smaller than joint count
+                        for (size_t i = eff_size; i < num_joints; i++)
+                        {
+                            armEffortCmd[i] = 0.0;
+                        }
+                    }
+                    else
+                    {
+                        // No effort data, fill with zeros
+                        for (size_t i = 0; i < num_joints; i++)
+                        {
+                            armEffortCmd[i] = 0.0;
+                        }
+                    }
+                
+                    // // Debug: Print received position values
+                    // if (latest_point.positions.size > 0) {
+                    //     printf("Received positions: ");
+                    //     for (size_t i = 0; i < latest_point.positions.size && i < 10; i++) {
+                    //         printf("%.4f ", latest_point.positions.data[i]);
+                    //     }
+                    //     printf("\n");
+                    // }
+                    
+                    // // Debug: Print output position values
+                    // printf("Output positions: ");
+                    // for (size_t i = 0; i < num_joints && i < 10; i++) {
+                    //     printf("%.4f ", armPositionCmd[i]);
+                    // }
+                    // printf("\n");
+                }
+            }
+            else
+            {
+                // No arm trajectory data, clear arrays
+                db.outputs.armJointNames().resize(0);
+                db.outputs.armPositionCmd().resize(0);
+                db.outputs.armVelocityCmd().resize(0);
+                db.outputs.armEffortCmd().resize(0);
+            }
+
         }
         else if (rc == RCL_RET_SUBSCRIPTION_TAKE_FAILED)
         {
@@ -274,7 +424,66 @@ public:
         }
     }
 
+    virtual void reset()
+    {
+        // Create a database accessor to reset outputs
+        auto db = ROS2SubscribeRobotCmdNodeDatabase(m_nodeObj);
+
+        // Clear chassis velocities - get references and assign directly
+        auto& chassisLinearVel = db.outputs.chassisLinearVel();
+        chassisLinearVel[0] = 0.0;
+        chassisLinearVel[1] = 0.0;
+        chassisLinearVel[2] = 0.0;
+
+        auto& chassisAngularVel = db.outputs.chassisAngularVel();
+        chassisAngularVel[0] = 0.0;
+        chassisAngularVel[1] = 0.0;
+        chassisAngularVel[2] = 0.0;
+
+        // Clear arm command arrays - get references and clear directly
+        auto& armJointNames = db.outputs.armJointNames();
+        auto& armPositionCmd = db.outputs.armPositionCmd();
+        auto& armVelocityCmd = db.outputs.armVelocityCmd();
+        auto& armEffortCmd = db.outputs.armEffortCmd();
+        
+        armJointNames.resize(0);
+        armPositionCmd.resize(0);
+        armVelocityCmd.resize(0);
+        armEffortCmd.resize(0);
+
+        // Clear other outputs
+        db.outputs.yaw() = 0.0;
+        db.outputs.gripperCmd() = 0.0;
+        db.outputs.timestamp() = 0.0;
+        db.outputs.messageReceived() = false;
+
+        // Reset ROS2 subscriber - this should be reset before we reset other resources
+        if (sub_created)
+        {
+            rcl_ret_t rc = rcl_subscription_fini(&my_sub, &my_node);
+            if (rc != RCL_RET_OK) {
+                printf("Failed to finalize subscriber during reset: %d\n", rc);
+            }
+
+            rc = rcl_node_fini(&my_node);
+            if (rc != RCL_RET_OK) {
+                printf("Failed to finalize node during reset: %d\n", rc);
+            }
+
+            sub_created = false;
+        }
+
+        // Reset state flags
+        message_received = false;
+
+        // Note: We don't reset context_initialized here as the context can be reused
+        // The context will be cleaned up in releaseInstance
+
+        printf("ROS2 Robot Command subscriber reset completed\n");
+    }
+
 private:
+    NodeObj m_nodeObj;  // Store node object for database access in reset()
     rcl_subscription_t my_sub;
     rcl_node_t my_node;
     rcl_context_t context;
@@ -298,7 +507,7 @@ private:
 // your node type definition.
 REGISTER_OGN_NODE()
 
-} // omnigraph_node_ros
+} // ogn_ros
 } // cpp
+} // custom
 } // omni
-} // example
