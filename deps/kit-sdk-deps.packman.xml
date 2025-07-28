@@ -53,7 +53,7 @@
   </dependency>
 
   <dependency name="mm_msgs" linkPath="../_build/target-deps/mm_msgs" tags="${config}">
-      <source path="/home/revesreveilles/isaac_ws/install/mm_msgs" />
+      <source path="/home/revesreveilles/mm_ws/install/mm_msgs" />
   </dependency>
   <import path="../_build/${platform_target}/${config}/kit/dev/deps/linbuild.packman.xml">
     <filter include="linbuild" linkPath="../_build/host-deps/linbuild" tags="non-redist" />
