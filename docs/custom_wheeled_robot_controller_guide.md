@@ -74,7 +74,7 @@ source/extensions/isaacsim.robot.wheeled_robots/
 
 ```bash
 # 在Isaac Sim根目录下
-./build.sh --debug-only
+./build.sh 
 ```
 
 构建成功后，重启Isaac Sim即可在Action Graph的Isaac Wheeled Robots分类下找到新的控制器节点。
