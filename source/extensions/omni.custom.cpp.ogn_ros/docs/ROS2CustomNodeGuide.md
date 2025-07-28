@@ -100,7 +100,8 @@ omni.custom.sub.cpp.omnigraph_node_ros/
 ├── docs/
 │   ├── Overview.md            # 扩展概述
 │   ├── ROS2CustomNodeGuide.md # 详细实现指南
-│      
+│   ├── QuickStart.md          # 快速入门
+│   └── Troubleshooting.md     # 故障排除
 ├── omni/                      # Python模块目录
 │   └── custom/
 │       └── sub/

@@ -1,6 +1,6 @@
 {
     "ROS2SubscribeRobotCmdNode": {
-        "version": 1,
+        "version": 3,
         "icon": "icons/isaac-sim.svg",
         "description": [
             "This node subscribes to mm_msgs RobotCmd messages with a ROS 2 OG node"
@@ -47,6 +47,16 @@
                 "type": "execution",
                 "description": "The output execution port."
             },
+            "messageReceived": {
+                "type": "bool",
+                "description": "Flag indicating if a new message was received",
+                "default": false
+            },
+            "timestamp": {
+                "type": "double",
+                "description": "Timestamp from the message header",
+                "default": 0.0
+            },
             "yaw": {
                 "type": "double",
                 "description": "Yaw angle from the robot command",
@@ -62,19 +72,25 @@
                 "description": "Chassis angular velocity [x, y, z]",
                 "default": [0.0, 0.0, 0.0]
             },
+            "armJointNames": {
+                "type": "token[]",
+                "description": "Arm joint names from the trajectory command"
+            },
+            "armPositionCmd": {
+                "type": "double[]",
+                "description": "Arm joint position commands"
+            },
+            "armVelocityCmd": {
+                "type": "double[]",
+                "description": "Arm joint velocity commands"
+            },
+            "armEffortCmd": {
+                "type": "double[]",
+                "description": "Arm joint effort commands"
+            },
             "gripperCmd": {
                 "type": "double",
                 "description": "Gripper command position [0,1]",
-                "default": 0.0
-            },
-            "messageReceived": {
-                "type": "bool",
-                "description": "Flag indicating if a new message was received",
-                "default": false
-            },
-            "timestamp": {
-                "type": "double",
-                "description": "Timestamp from the message header",
                 "default": 0.0
             }
         }

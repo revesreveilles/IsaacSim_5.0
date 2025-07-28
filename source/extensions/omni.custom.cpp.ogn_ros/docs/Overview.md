@@ -1,13 +1,11 @@
 ```{csv-table}
-**Extension**: {{ extension_version }},**Documentation Generated**: {sub-ref}`today`,{ref}`changelog_omni_custom_sub_cpp_omnigraph_node_ros`
+**Extension**: {{ extension_version }},**Documentation Generated**: {sub-ref}`today`,{ref}`changelog_omni_custom_cpp_ogn_ros`
 ```
 
-(ext_omni_custom_sub_cpp_omnigraph_node_ros)=
+(ext_omni_custom_cpp_ogn_ros)=
 
 # Overview
-
-一个自定义的 C++ 扩展，用于在 Isaac Sim 中创建 ROS2 自定义消息订阅节点。
-
+``Notice``:基于ROS2-Hubmle开发
 本扩展演示了如何：
 - 创建订阅 ROS2 自定义消息的 OmniGraph 节点
 - 处理复杂的消息结构（如 mm_msgs/RobotCmd）

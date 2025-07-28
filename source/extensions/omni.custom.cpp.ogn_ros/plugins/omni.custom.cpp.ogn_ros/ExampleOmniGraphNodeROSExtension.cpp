@@ -17,7 +17,7 @@
 #include <omni/graph/core/ogn/Registration.h>
 
 // Standard plugin definitions required by Carbonite.
-const struct carb::PluginImplDesc pluginImplDesc = { "omni.custom.sub.cpp.omnigraph_node_ros.plugin",
+const struct carb::PluginImplDesc pluginImplDesc = { "omni.custom.cpp.ogn_ros.plugin",
                                                      "A custom ROS2 subscriber C++ extension.", "NVIDIA",
                                                      carb::PluginHotReload::eEnabled, "dev" };
 
@@ -33,26 +33,24 @@ namespace omni
 {
 namespace custom
 {
-namespace sub
-{
 namespace cpp
 {
-namespace omnigraph_node_ros
+namespace ogn_ros
 {
 
-class CustomSubOmniGraphNodeROSExtension : public omni::ext::IExt
+class CustomCppOgnRosExtension : public omni::ext::IExt
 {
 public:
     void onStartup(const char* extId) override
     {
-        printf("CustomSubOmniGraphNodeROSExtension starting up (ext_id: %s).\n", extId);
+        printf("CustomCppOgnRosExtension starting up (ext_id: %s).\n", extId);
         // This macro walks the list of pending node type definitions and registers them with OmniGraph
         INITIALIZE_OGN_NODES()
     }
 
     void onShutdown() override
     {
-        printf("CustomSubOmniGraphNodeROSExtension shutting down.\n");
+        printf("CustomCppOgnRosExtension shutting down.\n");
         // This macro walks the list of registered node type definitions and deregisters all of them. This is required
         // for hot reload to work.
         RELEASE_OGN_NODES()
@@ -65,10 +63,9 @@ private:
 }
 }
 }
-}
 
-CARB_PLUGIN_IMPL(pluginImplDesc, omni::custom::sub::cpp::omnigraph_node_ros::CustomSubOmniGraphNodeROSExtension)
+CARB_PLUGIN_IMPL(pluginImplDesc, omni::custom::cpp::ogn_ros::CustomCppOgnRosExtension)
 
-void fillInterface(omni::custom::sub::cpp::omnigraph_node_ros::CustomSubOmniGraphNodeROSExtension& iface)
+void fillInterface(omni::custom::cpp::ogn_ros::CustomCppOgnRosExtension& iface)
 {
 }
