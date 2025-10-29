@@ -42,6 +42,9 @@ git rebase --continue
 
 # 完成后推送到 fork（安全强推）
 git push origin main --force-with-lease
+
+# 若推送失败(Token expired)
+git push https://<Token>@github.com/revesreveilles/IsaacSim_5.0.git main --force
 ```
 
 ### 方式 B：merge（不改写历史；无需强推）
