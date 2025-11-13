@@ -167,10 +167,10 @@ class FourWheelDriveFourWheelSteerController(BaseController):
         wheel_velocities, steering_angles = self._vector_kinematics_motion(
             chassis_linear_vel, chassis_angular_vel, yaw)
             
-        # update current state variables 
+        # update current state variables
         self.wheel_rotation_velocity_FL = wheel_velocities[0]
         self.wheel_rotation_velocity_FR = wheel_velocities[1]
-        self.wheel_rotation_velocity_BL = wheel_velocities[2] 
+        self.wheel_rotation_velocity_BL = wheel_velocities[2]
         self.wheel_rotation_velocity_BR = wheel_velocities[3]
         
         self.steering_angle_FL = steering_angles[0]
@@ -240,54 +240,55 @@ class FourWheelDriveFourWheelSteerController(BaseController):
     
     def _vector_kinematics_motion(self, chassis_linear_vel: np.ndarray, chassis_angular_vel: np.ndarray, yaw: float):
         """
-        4WD4WS kinematics calculation 
-        
+        4WD4WS kinematics calculation
+
         Args:
             chassis_linear_vel (np.ndarray): Desired linear velocity vector [x, y, z] m/s
-            chassis_angular_vel (np.ndarray): Desired angular velocity vector [x, y, z] rad/s  
+            chassis_angular_vel (np.ndarray): Desired angular velocity vector [x, y, z] rad/s
             yaw (float): Current heading angle rad (for coordinate transformation)
-            
+
         Returns:
-            tuple: (wheel_velocities, steering_angles)
+            tuple: (wheel_angular_velocities [rad/s], steering_angles [rad])
         """
         v = np.array([chassis_linear_vel[0], chassis_linear_vel[1], 0.0])  # Eigen::Vector3d
         w = np.array([0.0, 0.0, chassis_angular_vel[2]])                  # Eigen::Vector3d
-        
-        # Use euler_to_rot_matrix to directly generate inverse transformation matrix R(-yaw) 
+
+        # Use euler_to_rot_matrix to directly generate inverse transformation matrix R(-yaw)
         rotation_matrix = euler_to_rot_matrix(np.array([0, 0, -yaw]))
-        v = rotation_matrix @ v  
+        v = rotation_matrix @ v
         # print(f"rotation_matrix={rotation_matrix}")
         # print(f"yaw={yaw:.4f}rad ({np.degrees(yaw):.1f}°), using inverse transform R(-yaw)")
         # print(f"v_transformed={v}")
-        
+
         wheel_positions = self._wheel_positions
-        
+
         # print(f"Wheel positions (using {'custom' if hasattr(self, '_custom_positions') else 'default'} positions):")
         # wheel_names = ["front_left", "front_right", "rear_left", "rear_right"]
         # for i, (name, pos) in enumerate(zip(wheel_names, wheel_positions)):
         #     print(f"  {name}[{i}]: r = {pos}")
-        
+
         wheel_velocities = np.zeros(4)
         steering_angles = np.zeros(4)
-        
-        # for each wheel, calculate the velocity and steering angle 
+
+        # for each wheel, calculate the velocity and steering angle
         for i in range(4):
-            r = wheel_positions[i]  
+            r = wheel_positions[i]
             w_cross_r = np.cross(w, r)  # 3D cross product
             vel = v + w_cross_r
-            
+
             vel_norm = np.linalg.norm(vel)
             if vel_norm < 1e-6:
                 # when velocity is close to zero
                 wheel_velocities[i] = 0.0
                 steering_angles[i] = 0.0
             else:
-                # Always use positive wheel velocity, direction is handled by steering angle
-                wheel_velocities[i] = vel_norm
-                
+                # Convert linear velocity (m/s) to angular velocity (rad/s)
+                # wheel_angular_velocity = linear_velocity / wheel_radius
+                wheel_velocities[i] = vel_norm / self._wheel_radii[i]
+
                 # Calculate steering angle directly from velocity vector
                 # arctan2 already handles all quadrants correctly, including backward motion
-                steering_angles[i] = -np.arctan2(vel[1], vel[0]) # Negative sign to adapt to Isaac Sim coordinate system (or USD file)
+                steering_angles[i] = -np.arctan2(vel[1], vel[0])  # Negative sign to adapt to Isaac Sim coordinate system (or USD file)
 
         return wheel_velocities, steering_angles
 

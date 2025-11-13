@@ -48,7 +48,7 @@
             "wheelPositions": {
                 "type": "vectord[3][]",
                 "description": "Position of the wheel with respect to chassis' center of mass, [x, y, z]",
-                "default": [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+                "default": [[0.3, 0.3, 0.0], [0.3, -0.3, 0.0], [-0.3, 0.3, 0.0], [-0.3, -0.3, 0.0]]
             },
             "maxWheelVelocity": {
                 "type": "double",
